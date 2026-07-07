@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>LIP Socket Test</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  </head>
+  <body>
+    <h2>LIP WebSocket Test</h2>
+    <p>Open browser console to see events</p>
+
+    <script>
+      const socket = io('http://localhost:3000/events');
+
+      socket.on('connect', () => {
+        console.log('Connected. Socket ID:', socket.id);
+      });
+
+      socket.on('recent_events', (events) => {
+        console.log('Received recent events:', events.length);
+        console.table(events.map(e => ({
+          type: e.type,
+          severity: e.severity,
+          source: e.source,
+        })));
+      });
+
+      socket.on('new_event', (event) => {
+        console.log('New event:', event.type, `[${event.severity}]`, event.source);
+      });
+
+      socket.on('disconnect', () => {
+        console.log('Disconnected');
+      });
+    </script>
+  </body>
+</html>
