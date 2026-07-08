@@ -4,15 +4,17 @@ import databaseConfig from './config/database.config';
 import redisConfig from './config/redis.config';
 import jwtConfig from './config/jwt.config';
 import { EventsModule } from './modules/events/events.module';
+import { StateModule } from './modules/state/state.module';
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: '.env',
-      load: [databaseConfig, redisConfig, jwtConfig],
-    }),
-    EventsModule, // registers the entire events system
-  ],
+    imports: [
+        ConfigModule.forRoot({
+            isGlobal: true,
+            envFilePath: '.env',
+            load: [databaseConfig, redisConfig, jwtConfig],
+        }),
+        StateModule,  // Redis connection and state machine
+        EventsModule, // WebSocket gateway and event generator
+    ],
 })
 export class AppModule {}

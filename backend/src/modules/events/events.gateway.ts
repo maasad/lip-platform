@@ -1,71 +1,71 @@
 import {
-  WebSocketGateway,
-  WebSocketServer,
-  SubscribeMessage,
-  OnGatewayConnection,
-  OnGatewayDisconnect,
-  OnGatewayInit,
+    WebSocketGateway,
+    WebSocketServer,
+    SubscribeMessage,
+    OnGatewayConnection,
+    OnGatewayDisconnect,
+    OnGatewayInit,
 } from '@nestjs/websockets';
 import { Logger } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { EventsService } from './events.service';
+import { StateService } from '../state/state.service';
 import { EventDto } from './dto/event.dto';
 
-// @WebSocketGateway decorator registers this class as a WebSocket server
-// cors allows our React frontend to connect
 @WebSocketGateway({
-  cors: {
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-    credentials: true,
-  },
-  namespace: '/events', // WebSocket clients connect to ws://localhost:3000/events
+    cors: {
+        origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+        credentials: true,
+    },
+    namespace: '/events',
 })
 export class EventsGateway
-  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
+    implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
-  // @WebSocketServer injects the raw Socket.io server instance
-  @WebSocketServer()
-  server!: Server;
+    @WebSocketServer()
+    server: Server;
 
-  private readonly logger = new Logger(EventsGateway.name);
+    private readonly logger = new Logger(EventsGateway.name);
 
-  constructor(private readonly eventsService: EventsService) {}
+    constructor(
+        private readonly eventsService: EventsService,
+        private readonly stateService: StateService, // injected from StateModule
+    ) {}
 
-  // Runs once when the WebSocket server initializes
-  afterInit() {
-    this.logger.log('WebSocket Gateway initialized on namespace /events');
-  }
+    afterInit() {
+        this.logger.log('WebSocket Gateway initialized on namespace /events');
+    }
 
-  // Runs every time a client connects
-  handleConnection(client: Socket) {
-    this.logger.log(`Client connected: ${client.id}`);
+    handleConnection(client: Socket) {
+        this.logger.log(`Client connected: ${client.id}`);
+        const recentEvents = this.eventsService.getRecentEvents(20);
+        client.emit('recent_events', recentEvents);
+    }
 
-    // Send the last 20 events to the newly connected client
-    // so their UI is not empty on first load
-    const recentEvents = this.eventsService.getRecentEvents(20);
-    client.emit('recent_events', recentEvents);
-  }
+    handleDisconnect(client: Socket) {
+        this.logger.log(`Client disconnected: ${client.id}`);
+    }
 
-  // Runs every time a client disconnects
-  handleDisconnect(client: Socket) {
-    this.logger.log(`Client disconnected: ${client.id}`);
-  }
+    /**
+     * Broadcasts event to all clients AND triggers state mutation.
+     * This is the single entry point for all event processing.
+     */
+    async broadcastEvent(event: EventDto): Promise<void> {
+        // Store in ring buffer and log
+        this.eventsService.addEvent(event);
 
-  /**
-   * Broadcasts a new event to ALL connected clients.
-   * Called by the event generator service every time it produces an event.
-   */
-  broadcastEvent(event: EventDto): void {
-    this.eventsService.addEvent(event);
-    this.server.emit('new_event', event);
-  }
+        // Mutate the Redis state machine
+        // We do not await this in a blocking way - fire and continue
+        this.stateService.processEvent(event).catch((err: Error) => {
+            this.logger.error(`State processing failed: ${err.message}`);
+        });
 
-  /**
-   * Handles a ping message from any client.
-   * Useful for connection health checks from the frontend.
-   */
-  @SubscribeMessage('ping')
-  handlePing(client: Socket): void {
-    client.emit('pong', { timestamp: Date.now() });
-  }
+        // Broadcast to all WebSocket clients
+        this.server.emit('new_event', event);
+    }
+
+    @SubscribeMessage('ping')
+    handlePing(client: Socket): void {
+        client.emit('pong', { timestamp: Date.now() });
+    }
 }
