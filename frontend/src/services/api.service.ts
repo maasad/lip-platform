@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios, { type AxiosResponse } from 'axios'
 import type { SystemState, QueryResponse } from '../types'
 
 const BASE_URL = 'http://localhost:3000'
@@ -8,14 +8,14 @@ const api = axios.create({
     headers: { 'Content-Type': 'application/json' },
 })
 
-export const apiService = {
-    getState: async (): Promise<SystemState> => {
-        const response = await api.get<SystemState>('/api/state')
-        return response.data
-    },
-
-    query: async (question: string): Promise<QueryResponse> => {
-        const response = await api.post<QueryResponse>('/api/query', { question })
-        return response.data
-    },
+const getState = async (): Promise<SystemState> => {
+    const response: AxiosResponse<SystemState> = await api.get('/api/state')
+    return response.data
 }
+
+const query = async (question: string): Promise<QueryResponse> => {
+    const response: AxiosResponse<QueryResponse> = await api.post('/api/query', { question })
+    return response.data
+}
+
+export const apiService = { getState, query }
