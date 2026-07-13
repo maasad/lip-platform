@@ -5,7 +5,7 @@ export const EventFeed = () => {
   const { events, isConnected, eventCount } = useEvents();
 
   return (
-    <div className="flex flex-col h-full bg-gray-900 rounded-lg border border-gray-800">
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', background: '#111827', borderRadius: 8, border: '1px solid #1f2937' }}>
       {/* Panel header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
         <div className="flex items-center gap-2">
@@ -53,7 +53,7 @@ export const EventFeed = () => {
       </div>
 
       {/* Event list */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto min-h-0">
         {events.length === 0 ? (
           <div className="flex items-center justify-center h-full text-gray-600 text-sm">
             Waiting for events...

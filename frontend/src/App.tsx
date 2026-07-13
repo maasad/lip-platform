@@ -1,48 +1,32 @@
-import { EventFeed } from "./components/events/EventFeed";
-import { StateDashboard } from "./components/layout/StateDashboard";
-import { QueryPanel } from "./components/layout/QueryPanel";
+import { EventFeed } from './components/events/EventFeed'
+import { StateDashboard } from './components/layout/StateDashboard'
+import { QueryPanel } from './components/layout/QueryPanel'
 
 function App() {
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-100 flex flex-col">
-      {/* Top navigation bar */}
-      <header className="flex items-center justify-between px-6 py-3 bg-gray-900 border-b border-gray-800 shrink-0">
-        <div className="flex items-center gap-3">
-          <div className="w-7 h-7 bg-blue-600 rounded flex items-center justify-center">
-            <span className="text-white text-xs font-bold">L</span>
+      <div style={{ height: '100vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', background: '#030712', color: '#f3f4f6' }}>
+        {/* Header */}
+        <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 24px', background: '#111827', borderBottom: '1px solid #1f2937', flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ width: 28, height: 28, background: '#2563eb', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ color: 'white', fontSize: 12, fontWeight: 700 }}>L</span>
+            </div>
+            <span style={{ fontSize: 14, fontWeight: 600, color: '#e5e7eb', letterSpacing: '0.05em' }}>LIP Platform</span>
+            <span style={{ fontSize: 12, color: '#4b5563', fontFamily: 'monospace' }}>LiveOps Intelligence</span>
           </div>
-          <span className="text-sm font-semibold text-gray-200 tracking-wide">
-            LIP Platform
-          </span>
-          <span className="text-xs text-gray-600 font-mono">
-            LiveOps Intelligence
-          </span>
-        </div>
-        <div className="flex items-center gap-4">
-          <span className="text-xs text-gray-500 font-mono">
-            {new Date().toUTCString().slice(0, 25)}
-          </span>
-        </div>
-      </header>
+          <span style={{ fontSize: 12, color: '#6b7280', fontFamily: 'monospace' }}>
+          {new Date().toUTCString().slice(0, 25)}
+        </span>
+        </header>
 
-      {/* Three panel layout */}
-      <main className="flex-1 p-4 overflow-hidden">
-        <div
-          className="grid gap-4 h-[calc(100vh-72px)]"
-          style={{ gridTemplateColumns: "1fr 320px 320px" }}
-        >
-          {/* Left: Live event feed */}
+        {/* Three panel layout */}
+        <main style={{ flex: 1, minHeight: 0, padding: 16, display: 'grid', gap: 16, gridTemplateColumns: '1fr 320px 320px', gridTemplateRows: '1fr', overflow: 'hidden' }}>
           <EventFeed />
-
-          {/* Middle: System state dashboard */}
           <StateDashboard />
-
-          {/* Right: Claude query interface */}
           <QueryPanel />
-        </div>
-      </main>
-    </div>
-  );
+        </main>
+      </div>
+  )
 }
 
-export default App;
+export default App

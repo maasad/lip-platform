@@ -50,7 +50,7 @@ export const QueryPanel = () => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-gray-900 rounded-lg border border-gray-800">
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', background: '#111827', borderRadius: 8, border: '1px solid #1f2937' }}>
       {/* Header */}
       <div className="px-4 py-3 border-b border-gray-800">
         <h2 className="text-sm font-semibold text-gray-200 uppercase tracking-wider">
@@ -61,7 +61,7 @@ export const QueryPanel = () => {
         </p>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto min-h-0 p-4 space-y-4">
         {/* Suggested questions */}
         <div>
           <p className="text-xs text-gray-600 uppercase tracking-wider mb-2">
