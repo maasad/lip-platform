@@ -30,8 +30,9 @@ import { SnapshotEntity } from './modules/queue/entities/snapshot.entity';
                 password: configService.get<string>('database.password'),
                 database: configService.get<string>('database.name'),
                 entities: [SnapshotEntity],
-                synchronize: true, // auto-creates tables in development
+                synchronize: process.env.NODE_ENV !== 'production',
                 logging: false,
+                ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
             }),
             inject: [ConfigService],
         }),
