@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
-import * as http from 'http';
+import { IoAdapter } from '@nestjs/platform-socket.io';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule, {
@@ -21,14 +21,11 @@ async function bootstrap() {
         credentials: false,
     });
 
+    app.useWebSocketAdapter(new IoAdapter(app));
+
     const port = parseInt(process.env.PORT || '8080', 10);
-
-    const server = http.createServer();
-    await app.init();
-
-    server.listen(port, '0.0.0.0', () => {
-        console.log(`Application running on port ${port}`);
-    });
+    await app.listen(port, '0.0.0.0');
+    console.log(`Application running on port ${port}`);
 }
 
 bootstrap().catch((err) => {
