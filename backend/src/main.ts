@@ -1,7 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
-import { IoAdapter } from '@nestjs/platform-socket.io';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule, {
@@ -21,11 +20,20 @@ async function bootstrap() {
         credentials: false,
     });
 
-    app.useWebSocketAdapter(new IoAdapter(app));
-
     const port = parseInt(process.env.PORT || '8080', 10);
-    await app.listen(port, '0.0.0.0');
-    console.log(`Application running on port ${port}`);
+
+    // Listen without awaiting to prevent Socket.io blocking
+    app.listen(port, '0.0.0.0').then(() => {
+        console.log(`Application running on port ${port}`);
+    }).catch((err: Error) => {
+        console.error('Listen failed:', err.message);
+        process.exit(1);
+    });
+
+    // Give the server 2 seconds then confirm it started
+    setTimeout(() => {
+        console.log(`Server startup initiated on port ${port}`);
+    }, 2000);
 }
 
 bootstrap().catch((err) => {
