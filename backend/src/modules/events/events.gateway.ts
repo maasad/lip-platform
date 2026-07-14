@@ -14,10 +14,11 @@ import { EventDto } from './dto/event.dto';
 
 @WebSocketGateway({
     cors: {
-        origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-        credentials: true,
+        origin: '*',
+        credentials: false,
     },
     namespace: '/events',
+    transports: ['polling', 'websocket'],
 })
 export class EventsGateway
     implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
