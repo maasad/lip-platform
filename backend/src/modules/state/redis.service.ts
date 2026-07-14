@@ -5,7 +5,7 @@ import Redis from 'ioredis';
 @Injectable()
 export class RedisService implements OnModuleInit, OnModuleDestroy {
     private readonly logger = new Logger(RedisService.name);
-    private client: Redis;
+    private client!: Redis;
 
     // Redis key where the system state is stored
     // A constant here means if we ever rename it, we change it in one place
@@ -17,19 +17,27 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     constructor(private readonly configService: ConfigService) {}
 
     onModuleInit() {
-        // Read Redis connection config from the typed config we built on Day 1
-        const host = this.configService.get<string>('redis.host', 'localhost');
-        const port = this.configService.get<number>('redis.port', 6379);
+        const host = this.configService.get<string>('redis.host', 'localhost')
+        const port = this.configService.get<number>('redis.port', 6379)
+        const password = this.configService.get<string>('redis.password', '')
+        const tls = this.configService.get<string>('redis.tls', 'false')
 
-        this.client = new Redis({ host, port });
+        this.client = new Redis({
+            host,
+            port,
+            // Only set password if provided
+            ...(password && { password }),
+            // Enable TLS for Upstash in production
+            ...(tls === 'true' && { tls: {} }),
+        })
 
         this.client.on('connect', () => {
-            this.logger.log(`Redis connected on ${host}:${port}`);
-        });
+            this.logger.log(`Redis connected on ${host}:${port}`)
+        })
 
         this.client.on('error', (err: Error) => {
-            this.logger.error(`Redis error: ${err.message}`);
-        });
+            this.logger.error(`Redis error: ${err.message}`)
+        })
     }
 
     onModuleDestroy() {
