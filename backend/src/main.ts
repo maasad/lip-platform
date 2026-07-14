@@ -4,6 +4,9 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
+    console.log('PORT env:', process.env.PORT);
+    console.log('All env keys:', Object.keys(process.env).join(', '));
+
     const app = await NestFactory.create(AppModule);
 
     app.useGlobalPipes(
