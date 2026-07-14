@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
+import * as http from 'http';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule, {
@@ -22,11 +23,12 @@ async function bootstrap() {
 
     const port = parseInt(process.env.PORT || '8080', 10);
 
-    console.log(`Attempting to listen on port ${port}`);
+    const server = http.createServer();
+    await app.init();
 
-    await app.listen(port, '0.0.0.0');
-
-    console.log(`Application running on port ${port}`);
+    server.listen(port, '0.0.0.0', () => {
+        console.log(`Application running on port ${port}`);
+    });
 }
 
 bootstrap().catch((err) => {
